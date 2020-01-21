@@ -1,0 +1,3 @@
+writing/data/LittleWomen.txt	inf
+writing/data/one.txt	0
+writing/data/two.txt	0
