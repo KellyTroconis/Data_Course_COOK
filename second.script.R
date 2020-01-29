@@ -15,7 +15,7 @@ summary(iris)
 plot(x=iris$Species,y=iris$Sepal.Length,pch=20, main = "NOOO", xlab ="petal length", ylab = "sepal length")
 
 
-hist(iris$Sepal.Length, breaks = 20)
+hist(iris$Sepal.Length, breaks = 0)
 plot(density(iris$Sepal.Length))
 
 # How to save a plot
