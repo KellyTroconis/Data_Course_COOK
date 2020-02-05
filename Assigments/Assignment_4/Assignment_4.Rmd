@@ -45,8 +45,8 @@ we don't want to store our data as .xlsx because it's a large bloated file forma
 We will use the built-in function read.table() to load some data.
 
 ```{r, echo=TRUE}
-?read.table() #This brings up the help file
-df = read.csv("../../Data/landdata-states.csv") # why did I change to read.csv ???
+?read.csv() #This brings up the help file
+df = read.csv("../Data/landdata-states.csv") # why did I change to read.csv ???
 class(df) # what type of object is df?
 head(df) # shows the first 6 elements of an object (first 6 rows if you give it a data frame)
 ```
@@ -59,19 +59,30 @@ The read.csv() function is a convenient way to tell R that those commas represen
 **Questions:**
 
   + **1. What other stuff does read.csv() do automatically?**
+  You can save you data as a data frame. It lest R now that the data is coma separated 
+  
   + **2. How is it different from read.csv2()?**
+  For csv2 the commas are decimnals and the periods is the separation 
+  
   + **3. Why does read.csv2() even exist?**
+  Other countries numeric system where decimals are semarated by commas not periods. 
 
 
 Now, I notice that each column in this data frame has its own class. Let's look at a couple
 ```{r, echo=TRUE}
 class(df$State)
 class(df$Date)
+df$State <- as.character(df$State)
+class(df$State)
 ```
 
 **Questions:**
 
   + **4. How could I change the parameters of read.csv() to make it so the class of the "State" column is "character" instead of "factor?"**
+  df$State <- as.character(df$State)
+class(df$State)
+
+
 
 ____________
 
@@ -82,13 +93,20 @@ Now, let's explore this data set a bit with basic descriptive stats...
 dim(df) # dimensions of the data frame (rows, columns)
 str(df) # another nice way to glimpse a data frame
 summary(df) # summary() works differently for different data classes. Note how it summarizes factors vs numerics
+summary(df$Home.Value)
+names(df)[4]
+
 ```
+
 
 **Questions:**
 
   + **5. What command would give the summary stats for ONLY the Home.Value column?**
-  + **6. What value is returned by the command: names(df)[4]  ?**
+summary(df$Home.Value)
   
+  + **6. What value is returned by the command: names(df)[4]  ?**
+  [1] "Home.Value" 
+  #because Home.Value is the media in the fourth colum 
 ____________
 
 
@@ -102,6 +120,7 @@ plot(x=df$region,y=df$Land.Value)
 
 # Land value by year
 plot(x=df$Year,y=df$Land.Value)
+plot(x=df$Year,y=df$Land.Value,col=df$region)
 ```
 
 Note that the plot() function automatically tries to determine the best type of plot for your data based on the classes of vectors that you give it.
@@ -110,6 +129,8 @@ Note that the plot() function automatically tries to determine the best type of 
 
   + **7. What is happening when you add (...col=df\$region) to the above plotting code?**  
   **In other words, what happens when you run: plot(x=df\$Year,y=df\$Land.Value,col=df\$region)**
+  the data points are color by region 
+  
   
 _______________
 
