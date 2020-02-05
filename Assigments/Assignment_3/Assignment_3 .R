@@ -189,7 +189,7 @@ dev.off()
 # 3.  Subset the thatch ant data set to only include ants from colony 1 and colony 2
 ?subset
 col1_2 <- subset(dat_no_na, Colony==1 | Colony==2)
-
+c
 
 # 4.  Write code to save this new subset as a .csv file
 write.csv(col1_2, file = "colonies_1_and_2.cvs")
