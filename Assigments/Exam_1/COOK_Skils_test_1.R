@@ -37,9 +37,9 @@ dev.off()
 #It looks like Ben had consistently higher DNA yields than Katy did...but surely it wasn't uniformly better, right? With some samples, he only had a marginal improvement over Katy.
 #With other samples, he had a relatively massive improvement over her.
 #Your task here is to write some code that tells us: in which extraction YEAR, was Ben's performance the lowest RELATIVE TO Katy's performance?
-DNA %>% summarize(DNA_Concentration_Katy, DNA_Concentration_Ben)
-                                                    
-plot(DNA$DNA_Concentration_Katy,DNA$DNA_Concentration_Ben, col=DNA$DNA_Concentration_Ben)
+DNA %>% summarize(DNA_Concentration_Ben, mean(""))
+?summarize
+plot(DNA$DNA_Concentration_Katy,DNA$DNA_Concentration_Ben)
 
 
   
