@@ -40,12 +40,31 @@ dev.off()
 DNA %>% summarize(DNA_Concentration_Ben, mean(""))
 ?summarize
 plot(DNA$DNA_Concentration_Katy,DNA$DNA_Concentration_Ben)
+bensummary <- summary(DNA$DNA_Concentration_Ben)
+katysummary <- summary(DNA$DNA_Concentration_Katy)
+cbind(bensummary,katysummary)
+
+#compare year by year
+ben_vs_katy <- DNA$DNA_Concentration_Ben - DNA$DNA_Concentration_Katy
+min(ben_vs_katy) #lowest relative difference btwn ben and katy 
+bens_worst_relative <- which(ben_vs_katy == min(ben_vs_katy))
+DNA[bens_worst_relative, "Year_Collected"] #the year is 2000
 
 
-  
+
+
 #  V.
 #Do another subset of the data for me. Subset the data frame so it's just the "Downstairs" lab.
 #Now, make a scatterplot of the downstairs lab data such that "Date_Collected" is on the x-axis and "DNA_Concentration_Ben" is on the y-axis. Save this scatterplot as "Ben_DNA_over_time.jpg" in your Exam_1 directory. See the file "Downstairs.jpg" for an example of how yours should look. If it looks different, you might need to do some class conversions so the plot() function treats things correctly. HintHintHint: POSIXct
+down <- DNA %>% filter(Lab == "Downstairs")
+down$Date_Collected <- as.POSIXct(down$Date_Collected)
+plot(down$Date_Collected, down$DNA_Concentration_Ben, main= "Ben's Downstais Date collected", xlab= "Date collected", ylab = "DNA concentration")
+jpeg("Ben_DNA_over_time.jpeg")
+plot(down$Date_Collected, down$DNA_Concentration_Ben, main= "Ben's Downstais Date collected", xlab= "Date collected", ylab = "DNA concentration")
+dev.off()
+
+
+#this was my first try. use as reference for future questions. note: you forgot to do just the DOWNSTAIRS. 
 plot(x=DNA$Date_Collected, y=DNA$DNA_Concentration_Ben)
 class(DNA$Date_Collected)
 ?POSIXct
