@@ -41,7 +41,6 @@ df2 <- read.csv("./unicef-u5mr.csv")
 names(df2) #needs to be converted to long format 
 long <- gather(df2,key=Year , value=U5MR,2:67) #rank=new name salary= variables 
 new_year_name <- str_remove(long$Year, c("U5MR."))
-datlong$`Treatment 1` <- as.numeric(dat$`Treatment 1`)
 long$Year <-  new_year_name
 long$Year <- as.numeric(long$Year)
 
