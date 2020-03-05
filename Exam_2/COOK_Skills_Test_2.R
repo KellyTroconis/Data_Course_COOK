@@ -25,6 +25,7 @@ ggsave(filename = "./COOK_Fig_1.jpg", plot = p1, device = "jpg")
 df1[is.na(df1$region),] %>% subset(select = State) %>% summary()
 q2 <- df1[is.na(df1$region),] %>% subset(select = State) %>% summary()
 
+# dat[which(is.na(dat$region)),"state"] %>% unique     #the nice way
 #subset(q2, select = State) %>% summary()
 #df1 %>% is.na(df1$region) %>%
 #?subset
