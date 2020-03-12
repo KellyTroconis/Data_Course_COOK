@@ -1,0 +1,19 @@
+---
+title: "Rmarkdown"
+author: "Cook"
+date: "3/10/2020"
+output: html_document
+---
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+This is a summary data about...
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+df <- read.csv("./../Assigments/Data/1620_scores.csv")
+ggplot(df, aes(x=Exam.1..4245260.)) + geom_histogram()
+```
+___
+**BOLD**text
+**ithalic**text
+
