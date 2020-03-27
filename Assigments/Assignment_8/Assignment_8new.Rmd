@@ -130,8 +130,7 @@ If you want a deeper explanation, see this website: https://feliperego.github.io
 
 It may help to look at it visually...
 ```{r}
-plot(mtcars$mpg ~ mtcars$disp)
-abline(mod1)
+plot(mtcars$mpg ~ mtcars$disp) + abline(mod1)
 ```
 
 ### On this figure:
@@ -144,8 +143,7 @@ abline(mod1)
 Let's look at one that incorporates speed instead
 ```{r}
 mod2 = lm(mpg ~ qsec, data = mtcars)
-plot(mtcars$mpg ~ mtcars$qsec)
-abline(mod2, col="Blue")
+plot(mtcars$mpg ~ mtcars$qsec) + abline(mod2, col="Blue")
 ```
 
 ## How to compare these two different models?
