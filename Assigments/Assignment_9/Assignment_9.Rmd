@@ -1,0 +1,135 @@
+---
+title: "Assignment_9"
+output: html_document
+---
+
+```{r setup chunk, setup, warning=FALSE, message=FALSE, fig.align='center', include=FALSE}
+require("knitr")
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.align='center', echo = TRUE)
+getwd()
+library(pacman)
+pacman::p_load("broom", "tidyverse", "modelr", "dplyr", "GGally", "patchwork", "jtools")
+library(here)
+```
+
+### Assigment 9. Logistic Regression 
+Utilizing modeling workflow to generate predictions.
+
+The data set contais variables to determine Grad schools Admissions (gpa, gre, and the the rank of the school)
+
+## Loding the data and cleaning
+```{r}
+df <- read.csv(here("GradSchool_Admissions.csv"))
+df$rank <- factor(df$rank)
+df$admit <- as.logical(df$admit)
+```
+Admit is TRUE or FALSE variable 
+
+### Getting to know the data
+```{r Map fig1, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 1a.** *Comparing the variables of the data set*"}
+ggpairs(df)
+```
+In Fig 1a we can see that there is a possible correlation between gre and gpa
+
+
+## Making models 
+```{r message=FALSE, warning=FALSE, results='hide'}
+mod1 <- glm(formula = admit ~ gre + gpa + rank, data = df, family = "binomial")
+mod2 <- glm(formula = admit ~ gre * gpa * rank, data = df, family = "binomial")
+summary(mod1)
+summary(mod2)
+```
+we want to make more than one model to be able to compare them
+
+
+
+## Deretmining which is a better model
+```{r}
+#wich has a better fit 
+mod1mse <- mean(residuals(mod1)^2)
+mod2mse <- mean(residuals(mod2)^2)
+#Are the models signifficantly different?
+test <- anova(mod1, mod2)
+```
+The smallest result from the test square usually means that is a better fit. 
+the anova test will help us determine if the models are significantly different. If the p> value is not significant, we want to use the simpliest model.
+
+## Visualizing our models
+```{r fig2, message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 2a.** *Admition predictions in base of gre score using mod1*"}
+effect_plot(mod1, pred = gre, plot.points = TRUE, jitter = 0)
+```
+```{r fig3, message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 2b.** *Admition predictions in base of gre score using mod2*"}
+effect_plot(mod2, pred = gre, plot.points = TRUE, jitter = 0)
+```
+jtools() can make predictions according to our models and create quick plots. 
+This can be help us visualize our models.
+
+## Adding predictions 
+
+Now that we determine that mod2 has a better fit. We will use this model to make our predictions 
+```{r message=FALSE, warning=FALSE, results='hide'}
+dat2 <- add_predictions(df, mod2, type = "response")
+dat2
+```
+-type = "response" this means we want our predictions to be in the same scale as our response variable in this case is provability
+
+### Ploting our predictions 
+```{r fig4, message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 3a.** *Admition predictions in base of gpa using predictions from mod2*"}
+g1 <- ggplot(dat2, aes(x=gpa, y=pred, color=rank)) + theme_minimal() +
+  labs(title = "Admition predictions according to gpa", x= "gpa", y= "Admitpred", color= "School Rank") +
+  geom_point()
+g1
+ggsave("./Figures/fig3a.png")
+```
+
+```{r fig5, message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 3b.** *Admition predictions in base of gre using predictions from mod2*"}
+g2 <- ggplot(dat2, aes(x=gre, y=pred, color=rank)) +
+  theme_minimal() +
+  labs(title = "Admition predictions according to gre", x= "gre", y= "Admitpred", color= "School Rank") +
+  geom_point() + stat_smooth(method="glm", se=FALSE) 
+g2
+ggsave("./Figures/fig3b.png")
+```
+
+```{r fig6, message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 3c.** *Admition predictions in base of gpa using predictions from mod2*"}
+g3 <- ggplot(dat2, aes(x=gpa, y=pred, color=rank)) +
+  labs(title = "Admition predictions according to gpa", x= "gpa", y= "Admitpred", color= "School Rank") +
+  geom_smooth(method = "glm")
+g3
+ggsave("./Figures/fig3c.png")
+```
+We can see with the help of the plosts that, The greater the gpa, and gre the greater the probability to be admited. Ss well a,s the higher the rank of the school the the greater the probability to be admited
+
+## Compare to reality
+```{r fig7, message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 4a.** *Admition Reality vs. Predictions*"}
+g4 <- ggplot(df, aes(x=gpa, y=admit)) + geom_point() 
+g6 <- g4 + g3
+g6
+ggsave("./Figures/fig4a.png")
+```
+
+
+```{r fig8, message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 4b.** *Admition Reality vs. Predictions*"}
+g5 <- ggplot(df, aes(x=gre, y=admit)) + geom_point()
+g7 <- g5 + g2
+g7
+ggsave("./Figures/fig4b.png")
+```
+If we compare reality with the predictions we can see that reality can differet from predictions. For example in reality it is possible to be admitted with a 300 gre score but our predictions does not show that probability because it is too small. 
+
+## Creating a Hypotherical Student 
+-create new data frame
+
+-add predicctions to the new data using the previus model
+```{r}
+newdata <- data.frame(gre=c(800,545,650,780), #this is looking at 4 hypotherical people
+                      gpa=c(3,3.5,4,3.75),
+                      rank=c("4","4","4","4"))
+
+new1 <- add_predictions(newdata, mod2, type = "response")
+new1
+```
+Student with lowest gpa but highest gre has a 35% to be admitted. 
+
+
+
