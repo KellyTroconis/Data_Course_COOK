@@ -16,7 +16,7 @@ vector1*vector2
 
 list.files()
 
-dat = read.csv("./Data/thatch_ant.csv")
+dat = read.csv("./../../Data_BIO3100/thatch_ant.csv")
 names(dat)
 
 #why are these plots different???
@@ -60,7 +60,7 @@ plot(nums, main = "My Title", xlab = "My axis label", ylab = "My other axis labe
 
 
 ?
-jpeg("practice1.jp")
+  jpeg("practice1.jp")
 plot(nums, main = "My Title", xlab = "My axis label", ylab = "My other axis label")
 dev.off()
 
@@ -72,7 +72,7 @@ levels(dat$Headwidth) # levels gives all the "options" of a factor you feed it
 
 # I notice a couple weird ones in there: "" and "41mm"
 # The "" means a missing value, basically. The "41mm" sure looks like a data entry error.
-                                            # It should probably be "41.000"
+# It should probably be "41.000"
 
 # FIND WHICH ONES HAVE "41mm"
 bad41 <- which(grepl("41mm",dat$Headwidth))
@@ -157,7 +157,7 @@ for(i in levels(dat_no_na$Size.class)){
   new_vector[x] = mean(dat_no_na[dat_no_na$Size.class == i,"Mass"])
   x = x+1 # add 1 to the counter (this will change the element of new_vector we access each loop)
 }
-  
+
 #check it
 new_vector
 
@@ -195,4 +195,4 @@ c
 write.csv(col1_2, file = "colonies_1_and_2.cvs")
 
 # 5.  Upload this R script (with all answers filled in and tasks completed) to canvas
-      # I should be able to run your R script and get all the plots created and saved, etc.
+# I should be able to run your R script and get all the plots created and saved, etc.
