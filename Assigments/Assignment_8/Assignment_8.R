@@ -7,7 +7,7 @@ library(tidyr)
 ##note:this is the clean(short) version. You can see the "dratf" in assigment_8_practice 
 #1.  loads the "/Data/mushroom_growth.csv" data set
 
-df <- read.csv("./../Data/mushroom_growth.csv")
+df <- read.csv("./../../Data_BIO3100/mushroom_growth.csv")
 
 #2.  creates several plots exploring relationships between the response and predictors
 

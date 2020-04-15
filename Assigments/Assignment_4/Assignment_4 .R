@@ -1,6 +1,6 @@
 library(tidyverse)
 
-df <- read.delim("./Data/ITS_mapping.csv")
+df <- read.delim("./../../Data_BIO3100/ITS_mapping.csv")
 
 summary(df)
 summary(df$Lat)

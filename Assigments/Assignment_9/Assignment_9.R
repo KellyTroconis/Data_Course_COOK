@@ -5,7 +5,7 @@ library(broom)
 library(patchwork)
 library(jtools) 
 
-df <- read.csv("./../../Assigments/Data/GradSchool_Admissions.csv", stringsAsFactors = FALSE)
+df <- read.csv("./../../Data_BIO3100/GradSchool_Admissions.csv", stringsAsFactors = FALSE)
 write.csv(df,"./GradSchool_Admissions.csv")
 
 ggpairs(df)
