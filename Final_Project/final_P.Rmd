@@ -1,0 +1,381 @@
+---
+title: "Final Project"
+author: "Kelly Cook"
+output: html_document
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+<style>
+div.gray { background-color:#9CD3A9; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "gray">
+
+## First Responders Mental Health Awareness Survey
+
+<style>
+div.w { background-color:#ffffff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "w">
+
+```{r setup chunk, setup, warning=FALSE, message=FALSE, fig.align='center', include=FALSE}
+require("knitr")
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.align='center', echo = TRUE)
+library(pacman)
+pacman::p_load("corrplot", "tidyverse", "modelr", "dplyr", "GGally", "patchwork", "jtools", "skimr", "descr", "gmodels")
+library(corrplot)
+```
+
+### Survey Data Analysis 
+
+#### Background
+
+This survey is considered a "First Responders Mental Health Awareness Survey" or a Wellness and Support Questionnaire. 
+It's designed to give the administration a picture of how their department is doing based on their members' self-reporting. 
+The survey is broken up into sections measuring different areas of life first responders are typically most affected in. 
+
+#### Cleaning the data
+
+Cleaning the raw data was an extencive work. This particular data sets department membership has 545 sworn officers, 119 civilian members (non-officers). 324 responded (but not to every question)-approximately 48.80% response rate.There is an .Rproj in this folder that contains the primary cleaning.
+The data will be divided in five color coded sections for convinience. 
+
+### Data overview
+
+```{r message=FALSE, warning=FALSE, results='hide'}
+df <- read.csv("./Police_clean.cvs")
+skim(df)
+glimpse(df)
+df <- na.omit(df)
+df$Position <- factor(df$Position) 
+levels(df$Position) <- c("Sworn", "Disp")
+df$how.many.years <- factor(df$how.many.years)
+levels(df$how.many.years) <- c("1-6", "7-13", "14-20", "20+")
+```
+
+The survey was administered to Sworn Officer and Law Enforcement Professional (Dispatch or other Civilian Department Member). Which if found in the data as Position =  "Sworn" and "Disp"
+
+### Distribution
+
+```{r message=FALSE, warning=FALSE}
+prop.table(table(df$Position))
+```
+
+  - Meaning 79.2% Sworn Officer and 20.8% Law Enforcement Professional (Dispatch or other Civilian Department Member)
+
+#### Distribution according to time of service 
+
+```{r}
+CrossTable(df$how.many.years,df$Position,prop.r=FALSE,prop.t=FALSE,prop.chisq=FALSE,format="SPSS")
+```
+
+Another way to visualice this information is with a graph. 
+```{r Map fig1, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 1a.** *Distribution of the subject participating in the survey according to their position and time of service.*"}
+ggplot(df, aes(x= how.many.years, fill= factor(how.many.years))) +
+  labs(x= "Years of Service", fill= "Years of Service") +
+  geom_bar() +
+  facet_grid(~Position)
+```
+
+
+#### Note:
+
+  - 2. Due to the steps are same for each secction. The Yelow section will serve as refference for the steps used to analysed the data.
+  
+  - 1. Each section contains multiple stadistical models. To reduced the size of this document not all models will be graphed.
+
+<br>
+</div>
+___
+
+<style>
+div.yellow { background-color:#ffff7a; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "yellow">
+### Yellow
+
+#### Programs Training or service already in place or potentially being considered
+
+```{r message=FALSE, warning=FALSE}
+dat <- read.csv("./Programs_Yellow1.cvs")
+dat <- na.omit(dat)
+dat$Years <- factor(dat$Years)
+levels(dat$Years) <- c("1-6 years", "7-13 years", "14-20 years", "20+ years")
+```
+
+  - This section is diveded in EPA questions, Peer support, In job Trainnings, Personal Workshops. 
+
+  - The procces of the analysis will be divided in 5 teps for your convinience. 
+  
+  - The steps will be well explained and shown in the first two sections. (You can request changes, or request to show only your preffered steps)
+  
+  _ The steps are reproduceble for each section of the data. For convinience I created separete .cvs folders to access each section indivualy if needed.  
+
+### EPA
+
+#### Step1
+#### There are a couple of ways to visualize the survey data.
+
+  - Simple graphs 
+```{r Map fig2, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 2a.**Do you know what EAP services are available to you? Answers **"}
+ggplot(dat, aes(x= whatE, fill= factor(whatE))) +
+  labs(x= "answer", title = "Do you know what EAP services are available to you?") +
+  scale_fill_discrete(name = "Questions",
+labels = c("not at all", "a little bit", "moderately", "quite a bit", "extremely")) +
+  geom_bar() +
+  theme_bw() +
+  facet_grid(~Years) +
+  theme(strip.text.x = element_text(face= "bold"))
+```
+
+  - Tables
+
+```{r message=FALSE, warning=FALSE}
+#How Likely are you to use EAP Services
+CrossTable(dat$Years,dat$likeE,prop.r=FALSE,prop.t=FALSE,prop.chisq=FALSE,format="SPSS")
+```
+             
+  - The table allows to have a numeric value for the responce "not at all" 11%, "a little bit" 37.5%, "moderately" 37.8% , "quite a bit" 11.6%, "extremely" 1.7%
+
+  - Both table and graph can be done for each individual question. (I am not sure what would you prefferer?)
+
+#### Step2
+#### Are this questions related?
+
+```{r Map fig3, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 2b.** *Correlation grph. EPA Qiestions*"}
+dat1 <- select(dat, whatE, howE, likeE)
+dat1c <- cor(dat1)
+corrplot.mixed(dat1c)
+```
+We can observe a positive and negative correlation. Models would depend in desired outcome of the data
+
+#### Step4
+#### Finding the best model
+
+```{r message=FALSE, warning=FALSE}
+mod1 <- lm(formula = likeE ~ whatE, data = dat)
+mod2 <- lm(formula = likeE ~ howE, data = dat)
+summary(mod2)#whatE is a better predictor to likeE
+mod1mse <- mean(residuals(mod1)^2)
+mod2mse <- mean(residuals(mod2)^2)
+su2<- summary((mod2))$r.squared
+su1<- summary((mod1))$r.squared
+mod1mse ; mod2mse ; su1 ; su2
+```
+whatE seems to be a beeter predictore for likeE. However, it explains only 10% of the varience.  
+
+#### Step5
+#### Graphing models + predicctions 
+```{r Map fig4, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 2c.**Likely to usu EPA with respect What is EPA**"}
+effect_plot(mod1, pred = whatE, plot.points = TRUE, jitter = 0)
+```
+
+### Peer support
+
+```{r Map fig5, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 3a.** *Correlation grph. Peer Support Qiestions*"}
+dat3 <- select(dat, whatP, whoP, howP, likeP, comfP)
+dat3c <- cor(dat3)
+corrplot.mixed(dat3c)
+```
+
+Best model previusly determined
+```{r message=FALSE, warning=FALSE}
+mod4 <- lm(data=dat3, formula = whoP ~ howP)
+su4<- summary((mod4))$r.squared
+mod4mse <- mean(residuals(mod4)^2)
+mod4mse ; su4 
+```
+
+```{r Map fig6, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 3b.** *Correlation grph. Who is you peer support team? with respect How to access Peer support?*"}
+effect_plot(mod4, pred = howP, plot.points = TRUE, jitter = 0)
+```
+
+### In job Trainnings
+
+```{r Map fig7, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 4a.** *Correlation grph. In job Trainnings*"}
+dat4 <- select(dat, skillsT, partT, shift, wellT)
+dat4c <- cor(dat4)
+corrplot.mixed(dat4c)
+```
+
+```{r message=FALSE, warning=FALSE}
+mod5 <- lm(data=dat4, formula = skillsT ~ partT)
+su5<- summary((mod5))$r.squared
+mod5mse <- mean(residuals(mod5)^2)
+mod5mse ; su5
+```
+
+### Personal Workshops
+
+```{r Map fig8, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 5a.** *Correlation grph. Personal Workshops *"}
+dat5 <- select(dat, diet, exerc, fam, suppG, marry, finance, mind, resi, reimb)
+dat5c <- cor(dat5)
+corrplot.mixed(dat5c)
+```
+           
+  - Correlations seems to be stronger in this section
+  
+```{r Map fig9, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 5b.** *Correlation grph. Personal Workshops *"}
+ggpairs(dat5)
+```
+
+  - Another way to see correlations with grphs instead of color coded. 
+  
+```{r message=FALSE, warning=FALSE}
+mod6 <- lm(data=dat5, formula = diet ~ exerc)
+su6<- summary((mod6))$r.squared
+mod6mse <- mean(residuals(mod6)^2)
+mod6mse ; su6
+```
+
+```{r Map fig9.1, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 5c.** *Correlation grph. Predicting Diet workshop attendace based on Exercise workshop attendace *"}
+effect_plot(mod6, pred = exerc, plot.points = TRUE, jitter = 0)
+```
+<br>
+</div>
+___
+
+<style>
+div.blu { background-color:#0085ba; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blu">
+#### Blue 
+### Spiritual Impact
+
+```{r message=FALSE, warning=FALSE}
+df <- read.csv("./Programs_Blue.cvs")
+df$how.many.years <- factor(df$how.many.years)
+levels(df$how.many.years) <- c("1-6", "7-13", "14-20", "20+")
+dfa <- subset(df, select = c(3:8))
+```
+
+```{r message=FALSE, warning=FALSE}
+CrossTable(df$how.many.years,df$extent.spiritual,prop.r=FALSE,prop.t=FALSE,prop.chisq=FALSE,format="SPSS")
+```
+
+```{r Map fig10, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 10a.** *Correlation grph. Spiritual Impact Questions *"}
+dfac <- cor(dfa)
+corrplot.mixed(dfac)
+```
+
+```{r message=FALSE, warning=FALSE}
+moddf <- lm(data=df, formula = spritual.help ~ spiritual.tolerate)
+sudf<- summary((moddf))$r.squared
+moddfmse <- mean(residuals(moddf)^2)
+moddfmse ; sudf
+```
+  
+  - Explains 85% of the varience
+  
+```{r Map fig11, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 10b.** *Correlation grph. Stress Tolerance based on the Speritual help *"}
+effect_plot(moddf, pred = spiritual.tolerate, plot.points = TRUE, jitter = 0)
+```
+<br>
+</div>
+___
+
+<style>
+div.red { background-color:#ff5d3d; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "red">
+
+#### Red 
+### PTSD, Depression, Anxiety and Suicidal Measures
+
+```{r message=FALSE, warning=FALSE}
+dfr <- read.csv("./Programs_Red.cvs")
+dfr$how.many.years <- factor(dfr$how.many.years)
+levels(dfr$how.many.years) <- c("1-6", "7-13", "14-20", "20+")
+```
+
+```{r Map fig12, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 12a.** *Feeling down, depressed, or hopeless? Answer rate *"}
+
+ggplot(dfr, aes(x= feeling.depressed , fill= factor(feeling.depressed))) +
+  labs(x= "answer", title = "Feeling down, depressed, or hopeless?") +
+  scale_fill_discrete(name = "Answers",
+labels = c("not at all", "a little bit", "moderately", "quite a bit", "extremely")) +
+  geom_bar() +
+  theme_bw() +
+  facet_grid(~how.many.years) +
+  theme(strip.text.x = element_text(face= "bold"))
+```
+```{r message=FALSE, warning=FALSE}
+CrossTable(dfr$how.many.years,dfr$feeling.depressed,prop.r=FALSE,prop.t=FALSE,prop.chisq=FALSE,format="SPSS")
+```
+<br>
+</div>
+___
+
+<style>
+div.oran { background-color:#ff9b3d; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "oran">
+#### Orange 
+### Barriers to getting help
+
+```{r message=FALSE, warning=FALSE}
+dfo <- read.csv("./Programs_Orange.cvs")
+dfo$how.many.years <- factor(dfo$how.many.years)
+levels(dfo$how.many.years) <- c("1-6", "7-13", "14-20", "20+")
+```
+
+```{r message=FALSE, warning=FALSE}
+CrossTable(dfo$how.many.years,dfo$I.might.need,prop.r=FALSE,prop.t=FALSE,prop.chisq=FALSE,format="SPSS")
+```
+
+  - Almost 40% of personal has wonder if they need mental health
+  
+```{r Map fig13, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 13a.** *At times I have wondered if I need mental health treatment? Answer rate *"}
+ggplot(dfo, aes(x= I.might.need , fill= factor(I.might.need))) +
+  labs(x= "answer", title = "At times I have wondered if I need mental health treatment?") +
+  scale_fill_discrete(name = "Answers",
+labels = c("not at all", "a little bit", "moderately", "quite a bit", "extremely")) +
+  geom_bar() +
+  theme_bw() +
+  facet_grid(~how.many.years) +
+  theme(strip.text.x = element_text(face= "bold"))
+```
+<br>
+</div>
+___
+
+<style>
+div.pur { background-color:#ad3bff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "pur">
+#### Purple 
+### Coping
+
+```{r message=FALSE, warning=FALSE}
+dfp <- read.csv("./Programs_Purple.cvs")
+dfp$how.many.years <- factor(dfp$how.many.years)
+levels(dfp$how.many.years) <- c("1-6", "7-13", "14-20", "20+")
+```
+
+```{r message=FALSE, warning=FALSE}
+CrossTable(dfp$how.many.years,dfp$how.often.alcohol,prop.r=FALSE,prop.t=FALSE,prop.chisq=FALSE,format="SPSS")
+```
+
+```{r Map fig14, results="hide", message=FALSE, warning=FALSE,fig.align = 'center', fig.cap="**Figure 14a.** *How often do you drink? Answer rate *"}
+names(dfp)
+ggplot(dfp, aes(x= how.often.alcohol , fill= factor(how.often.alcohol))) +
+  labs(x= "answer", title = "How often do you drink?") +
+  scale_fill_discrete(name = "Answers",
+labels = c("not at all", "a little bit", "moderately", "quite a bit", "extremely")) +
+  geom_bar() +
+  theme_bw() +
+  facet_grid(~how.many.years) +
+  theme(strip.text.x = element_text(face= "bold"))
+```
+<br>
+</div>
+___
+
+
+
+

@@ -2,7 +2,7 @@ library(tidyverse)
 
 #load "wide" data examples
 
-df1 <- read.csv("./../Assigments/Data/FacultySalaries_1995.csv")
+df1 <- read.csv("./../Data_BIO3100/FacultySalaries_1995.csv")
 df2 <- read.csv("./../../wide_income_rent.csv")
 
 #make boxplot (xaxis=professor rank, yaxis= Salary)
@@ -22,7 +22,7 @@ p1 <- ggplot(long, aes(x=Rank, y=Salary, fill=Rank)) +
   geom_boxplot() +
   scale_fill_brewer(palette = 3) #scale_fill_manual(values= c())
 ggsave(filename = "./p1.png", plot = p1, device="png")
-
+p1
 gather(df1,key=Rank , value=Comp,9:11)
 long2 <- gather(df1,key=Rank , value=Comp,9:11)
 long2$Rank
@@ -31,8 +31,9 @@ long2$Rank <- newnameslong2
 p2 <- ggplot(long2, aes(x=Rank, y=Comp, fill=Rank)) +
   geom_boxplot() +
   scale_fill_brewer(palette = 2)
-ggsave(filename = "./p2.png", plot = p2, device="png")
 
+ggsave(filename = "./p2.png", plot = p2, device="png")
+p2
 #this is better
 names(long)
 long1.2 <- gather(long, key=Rank, value= Comp, 6:8)
@@ -48,7 +49,7 @@ p3 <- ggplot(long1.3, aes(x=Rank, y=Dollars, fill=Rank)) + geom_boxplot() +
 ggsave(filename = "./p3.png", plot = p3, device="png")
 
 
-df2 <- read.csv("./../../wide_income_rent.csv")
+df2 <- read.csv("./../Class Notes/wide_income_rent.csv")
 names(df2)
 gt1 <- gather(df2,key=State , value=Amount,2:53)
 
